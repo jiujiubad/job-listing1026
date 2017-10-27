@@ -2,6 +2,7 @@ class Admin::JobsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
   before_action :find_job_and_check_permission, only: [:update, :edit, :destroy]
   before_action :require_is_admin
+  layout "admin"
 
   def index
     @jobs = Job.all
@@ -40,13 +41,22 @@ class Admin::JobsController < ApplicationController
     redirect_to admin_jobs_path, alert: "Job Deleted!"
   end
 
+  def publish
+    @job = Job.find(params[:id])
+    @job.publish!
+    redirect_to :back
+  end
+
+  def hide
+    @job = Job.find(params[:id])
+    @job.hide!
+    redirect_to :back
+  end
+
   private
 
   def find_job_and_check_permission
-    @job = Job.find(prams[:id])
-    if current_user != @job.user
-      redirect_to root_path, alert: "You have no permission!"
-    end
+    @job = Job.find(params[:id])
   end
 
   def job_params
