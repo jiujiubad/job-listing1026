@@ -2,7 +2,14 @@ class JobsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :update, :edit, :destroy]
 
   def index
-    @jobs = Job.where(:is_hidden => false).order("created_at DESC")
+    @jobs = case params[:order]
+    when 'by lower bound'
+      Job.published.order('wage_lower_bound DESC')
+    when 'by upper bound'
+      Job.published.order('wage_upper_bound DESC')
+    else
+      Job.published.recent
+    end
   end
 
   def new
@@ -12,7 +19,7 @@ class JobsController < ApplicationController
   def show
     @job = Job.find(params[:id])
     if @job.is_hidden
-      redirect_to root_path, alert: "You have no permission!"  
+      redirect_to root_path, alert: "You have no permission!"
     end
   end
 
